@@ -3,10 +3,9 @@ import spacy
 import requests
 import time
 
-# Load the SpaCy model
+# Load SpaCy model
 nlp = spacy.load("en_core_web_md")
 
-# OpenWeatherMap API setup
 API_KEY = st.secrets['openweather_key']
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
@@ -34,7 +33,6 @@ def get_weather(city):
     else:
         return None
 
-# Page config
 st.set_page_config(page_title="WeatherBot", page_icon="⛅", layout="centered")
 
 # Sidebar
@@ -54,22 +52,43 @@ if "messages" not in st.session_state:
 st.title("⛅ Weather Forecast Chatbot")
 st.markdown("Ask me about the weather anywhere in the world")
 
-# Display chat messages as chat bubbles
+# Custom CSS for chat bubbles
+st.markdown(
+    """
+    <style>
+    .user-msg {
+        background-color: #DCF8C6;
+        padding: 12px 15px;
+        border-radius: 20px 20px 0 20px;
+        max-width: 60%;
+        margin-left: auto;
+        margin-bottom: 10px;
+        font-size: 16px;
+        white-space: pre-wrap;
+    }
+    .bot-msg {
+        background-color: #F1F0F0;
+        padding: 12px 15px;
+        border-radius: 20px 20px 20px 0;
+        max-width: 60%;
+        margin-right: auto;
+        margin-bottom: 10px;
+        font-size: 16px;
+        white-space: pre-wrap;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Display chat messages
 for msg in st.session_state.messages:
     if msg["role"] == "user":
-        st.markdown(
-            f'<p style="background-color:#DCF8C6; padding:10px; border-radius:10px; '
-            f'text-align:right; max-width:60%; margin-left:auto;">{msg["content"]}</p>',
-            unsafe_allow_html=True,
-        )
+        st.markdown(f'<div class="user-msg">{msg["content"]}</div>', unsafe_allow_html=True)
     else:
-        st.markdown(
-            f'<p style="background-color:#F1F0F0; padding:10px; border-radius:10px; '
-            f'text-align:left; max-width:60%;">{msg["content"]}</p>',
-            unsafe_allow_html=True,
-        )
+        st.markdown(f'<div class="bot-msg">{msg["content"]}</div>', unsafe_allow_html=True)
 
-# User input form with submit button and input clearing
+# Input form with clear on submit
 with st.form(key="chat_form", clear_on_submit=True):
     user_input = st.text_input("You:", placeholder="e.g., What's the weather in Berlin?")
     submitted = st.form_submit_button("Send")
@@ -81,7 +100,7 @@ if submitted and user_input:
 
     if city:
         with st.spinner(f"Fetching weather for {city}..."):
-            time.sleep(1)  # simulate loading delay
+            time.sleep(1)  # simulate delay
             weather = get_weather(city)
 
         if weather:
