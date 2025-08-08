@@ -19,7 +19,7 @@ nlp = load_spacy_model()
 
 # OpenWeatherMap API setup
 # Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
-API_KEY = 'ce8f2aaac5bffc08c84aba9a7d043d6f'
+API_KEY =st.secrets['openweather_key'] 
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
 # Function to extract city name using spaCy
