@@ -3,16 +3,19 @@ import requests
 import spacy
 import os
 import time # Import time for simulating delay for spinner
+import subprocess
+import sys
 
-# Check if the spaCy model exists, download if not
-# This check is more suitable for a standalone script
-# In a notebook environment, it might be handled differently or assumed pre-installed
-try:
-    nlp = spacy.load("en_core_web_md")
-except OSError:
-    st.error("SpaCy model 'en_core_web_md' not found. Please ensure it's downloaded.")
-    st.warning("You can download it by running: python -m spacy download en_core_web_md")
-    st.stop() # Stop execution if model is not found
+def load_spacy_model(model_name="en_core_web_md"):
+    try:
+        nlp = spacy.load(model_name)
+    except OSError:
+        # Model not found, download it
+        subprocess.run([sys.executable, "-m", "spacy", "download", model_name], check=True)
+        nlp = spacy.load(model_name)
+    return nlp
+
+nlp = load_spacy_model()
 
 # OpenWeatherMap API setup
 # Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
