@@ -8,7 +8,6 @@ import requests
 nlp = spacy.load("en_core_web_md")
 
 # OpenWeatherMap API setup
-# Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
 API_KEY =st.secrets['openweather_key'] 
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
@@ -69,14 +68,13 @@ st.sidebar.caption("Data provided by OpenWeatherMap")
 st.title("⛅ Weather Forecast Chatbot")
 st.markdown("Ask me about the weather anywhere in the world")
 
-# Text input for the user to type their question with improved labeling and guidance
+
 user_input = st.text_input(
     "Enter a city name to get the weather forecast:",
-    placeholder="e.g., London, New York, Tokyo",
+    placeholder="Ask your question about weather, I'm ready to answer",
     help="Type the full name of the city you want the weather forecast for and press Enter."
 )
 
-# Process the user input only if it's not empty after stripping whitespace
 if user_input and user_input.strip():
     # Extract the city name from the input
     city = extract_city(user_input)
@@ -85,11 +83,10 @@ if user_input and user_input.strip():
     if city:
         # Get the weather data for the extracted city with a spinner
         with st.spinner(f"Fetching weather for {city}..."):
-            # Simulate fetching time to see the spinner, remove in production if not needed
             time.sleep(2)
             weather = get_weather(city)
 
-        # If weather data was successfully fetched
+        
         if weather:
             # Display the weather information
             st.success(f"🌍 Weather Forcast for {city.capitalize()}")
@@ -107,15 +104,15 @@ if user_input and user_input.strip():
                 st.write(f"**Wind Speed:** {weather['wind_speed']} m/s")
 
         else:
-            # Display an error message if weather data could not be fetched
+            
             st.error(f"❌ Could not fetch weather data for {city}. Please check the city name and try again.")
     else:
-        # Display a warning if no city was detected in the input
+    
         st.warning("🔎 I couldn't detect a city in your question. Please try rephrasing your question.")
 elif user_input.strip() == "":
      st.info("Please enter a city name to get the weather.")
 
-# Footer section for attribution
+
 st.markdown("")
 st.markdown("---")
 st.caption("Built by Saman Karimi for AI Use Case Project - IU International University of Applied Sciences")
