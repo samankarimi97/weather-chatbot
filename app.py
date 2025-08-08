@@ -2,20 +2,9 @@ import streamlit as st
 import requests
 import spacy
 import os
-import time # Import time for simulating delay for spinner
-import subprocess
-import sys
+import time
 
-def load_spacy_model(model_name="en_core_web_md"):
-    try:
-        nlp = spacy.load(model_name)
-    except OSError:
-        # Model not found, download it
-        subprocess.run([sys.executable, "-m", "spacy", "download", model_name], check=True)
-        nlp = spacy.load(model_name)
-    return nlp
-
-nlp = load_spacy_model()
+nlp = spacy.load("en_core_web_md")
 
 # OpenWeatherMap API setup
 # Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
