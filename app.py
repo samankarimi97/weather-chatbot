@@ -86,7 +86,7 @@ if user_input and user_input.strip():
         # Get the weather data for the extracted city with a spinner
         with st.spinner(f"Fetching weather for {city}..."):
             # Simulate fetching time to see the spinner, remove in production if not needed
-            time.sleep(3)
+            time.sleep(1)
             weather = get_weather(city)
 
         # If weather data was successfully fetched
