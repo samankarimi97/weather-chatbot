@@ -3,9 +3,7 @@ import spacy
 import requests
 import time
 
-# Load SpaCy model
 nlp = spacy.load("en_core_web_md")
-
 API_KEY = st.secrets['openweather_key']
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
@@ -35,29 +33,28 @@ def get_weather(city):
 
 st.set_page_config(page_title="WeatherBot", page_icon="⛅", layout="centered")
 
-# Sidebar
+# Sidebar info
 st.sidebar.title("About WeatherBot")
 st.sidebar.markdown(
-    "This is a simple weather forecast chatbot built using Streamlit, spaCy, and the OpenWeatherMap API."
+    "Ask me about the weather in any city worldwide. Powered by Streamlit, spaCy, and OpenWeatherMap."
 )
-st.sidebar.markdown("Enter a city name in the main chat area to get the current weather.")
 st.sidebar.markdown("---")
 st.sidebar.caption("Built by Saman Karimi")
-st.sidebar.caption("Data provided by OpenWeatherMap")
 
-# Initialize chat messages in session state
+# Initialize session state messages
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 st.title("⛅ Weather Forecast Chatbot")
 st.markdown("Ask me about the weather anywhere in the world")
 
-# Custom CSS for chat bubbles
+# Custom CSS for chat bubbles with readable dark text
 st.markdown(
     """
     <style>
     .user-msg {
         background-color: #DCF8C6;
+        color: #000000;  /* black text for readability */
         padding: 12px 15px;
         border-radius: 20px 20px 0 20px;
         max-width: 60%;
@@ -68,6 +65,7 @@ st.markdown(
     }
     .bot-msg {
         background-color: #F1F0F0;
+        color: #000000;  /* black text for readability */
         padding: 12px 15px;
         border-radius: 20px 20px 20px 0;
         max-width: 60%;
@@ -88,7 +86,7 @@ for msg in st.session_state.messages:
     else:
         st.markdown(f'<div class="bot-msg">{msg["content"]}</div>', unsafe_allow_html=True)
 
-# Input form with clear on submit
+# Single input box inside form, clears after submit
 with st.form(key="chat_form", clear_on_submit=True):
     user_input = st.text_input("You:", placeholder="e.g., What's the weather in Berlin?")
     submitted = st.form_submit_button("Send")
@@ -97,10 +95,9 @@ if submitted and user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     city = extract_city(user_input)
-
     if city:
         with st.spinner(f"Fetching weather for {city}..."):
-            time.sleep(1)  # simulate delay
+            time.sleep(1)
             weather = get_weather(city)
 
         if weather:
