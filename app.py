@@ -1,15 +1,6 @@
 import subprocess
 import sys
-
-try:
-    import spacy
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy==3.8.7"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", 
-        "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.7/en_core_web_md-3.8.7-py3-none-any.whl"])
-    import spacy
-
-
+import spacy
 import os
 import time
 
