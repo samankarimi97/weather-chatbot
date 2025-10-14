@@ -93,42 +93,42 @@ user_input = st.text_input(
     help="Type the full name of the city you want the weather forecast for and press Enter."
 )
 
+# Forecast mode selector
+mode = st.radio("Select forecast type:", ["Current Weather", "5-Day Forecast"])
+
+# Process input
 if user_input and user_input.strip():
-    # Extract the city name from the input
     city = extract_city(user_input)
 
-    # If a city was successfully extracted
     if city:
-        # Get the weather data for the extracted city with a spinner
-        with st.spinner(f"Fetching weather for {city}..."):
-            time.sleep(2)
-            weather = get_weather(city)
-
-        
-        if weather:
-            # Display the weather information
-            st.success(f"🌍 Weather Forcast for {city.capitalize()}")
-            st.write(f"**Description:** {weather['description'].capitalize()}")
-
-            # Use columns for detailed weather metrics
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.write(f"**Temperature:** {weather['temperature']}°C")
-                st.write(f"**Pressure:** {weather['pressure']} hPa")
-
-            with col2:
-                st.write(f"**Humidity:** {weather['humidity']}%")
-                st.write(f"**Wind Speed:** {weather['wind_speed']} m/s")
-
-        else:
-            
-            st.error(f"❌ Could not fetch weather data for {city}. Please check the city name and try again.")
+        with st.spinner(f"Fetching {mode.lower()} for {city}..."):
+            time.sleep(1.5)
+            if mode == "Current Weather":
+                weather = get_weather(city)
+                if weather:
+                    st.success(f"🌍 Current Weather in {city.capitalize()}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("🌡️ Temperature", f"{weather['temperature']}°C")
+                        st.metric("💨 Wind Speed", f"{weather['wind_speed']} m/s")
+                    with col2:
+                        st.metric("💧 Humidity", f"{weather['humidity']}%")
+                        st.metric("🔹 Pressure", f"{weather['pressure']} hPa")
+                    st.markdown(f"**Description:** {weather['description'].capitalize()}")
+                else:
+                    st.error(f"❌ Could not fetch weather data for {city}. Please check the city name.")
+            else:
+                forecast = get_forecast(city)
+                if forecast:
+                    st.success(f"📅 5-Day Forecast for {city.capitalize()}")
+                    for day in forecast:
+                        st.write(f"**{day['datetime']}** – {day['desc']}, 🌡️ {day['temp']}°C")
+                else:
+                    st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
     else:
-    
-        st.warning("🔎 I couldn't detect a city in your question. Please try rephrasing your question.")
+        st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
 elif user_input.strip() == "":
-     st.info("Please enter a city name to get the weather.")
+    st.info("💬 Please enter a city name or question to begin.")
 
 
 st.markdown("")
