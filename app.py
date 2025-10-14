@@ -14,14 +14,10 @@ FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
 # Function to extract city name using spaCy
 def extract_city(user_input):
-    # Process the user input using the spaCy model
-    doc = nlp(user_input)
-
-    # Iterate over the identified entities
-    for ent in doc.ents:
-        # Check if the entity is a Geo-Political Entity (GPE), which often represents cities
+ 
+    doc = nlp(user_input) 
+    for ent in doc.ents:       
         if ent.label_ == "GPE":
-            # Return the extracted city name
             return ent.text
 
     # If no GPE is found, return None
@@ -30,13 +26,13 @@ def extract_city(user_input):
 
 # Function to get weather data from OpenWeatherMap API
 def get_weather(city):
-    # Set up the parameters for the API request
-    params = {"q": city, "appid": API_KEY, "units": "metric"} # units=metric for Celsius
 
-    # Make the GET request to the API
+    params = {"q": city, "appid": API_KEY, "units": "metric"}
+
+
     response = requests.get(CURRENT_WEATHER_URL, params=params)
 
-    # Check if the request was successful (status code 200)
+ 
     if response.status_code == 200:
         # Parse the JSON response
         data = response.json()
@@ -51,7 +47,7 @@ def get_weather(city):
         }
         return weather
     else:
-        # If the request was not successful, return None
+      
         return None
 # Get 5-day forecast
 def get_forecast(city):
@@ -74,7 +70,7 @@ def get_forecast(city):
 # Streamlit User Interface (UI) setup
 st.set_page_config(page_title="WeatherBot", page_icon="⛅", layout="centered")
 
-# Add a sidebar
+# Add sidebar
 st.sidebar.title("About WeatherBot")
 st.sidebar.markdown("This is a simple weather forecast chatbot built using Streamlit, spaCy, and the OpenWeatherMap API.")
 st.sidebar.markdown("Enter a city name in the main chat area to get the current weather.")
@@ -133,7 +129,7 @@ if user_input and user_input.strip():
                         "temp": "Temperature (°C)"
                     }, inplace=True)
                 
-                    # Apply a clean, professional style
+                    # Apply style
                     styled_table = forecast_df.style.set_properties(
                         **{
                             'text-align': 'center',
@@ -145,7 +141,7 @@ if user_input and user_input.strip():
                         {
                             'selector': 'th',
                             'props': [
-                                ('background-color', '#2B579A'),   # Deep professional blue header
+                                ('background-color', '#2B579A'),  
                                 ('color', 'white'),
                                 ('font-weight', 'bold'),
                                 ('text-align', 'center'),
@@ -155,13 +151,13 @@ if user_input and user_input.strip():
                         {
                             'selector': 'td',
                             'props': [
-                                ('background-color', '#F7F9FC')   # Light gray-blue cell background
+                                ('background-color', '#F7F9FC')   
                             ]
                         },
                         {
                             'selector': 'tr:nth-child(even)',
                             'props': [
-                                ('background-color', '#FFFFFF')   # Alternate row color
+                                ('background-color', '#FFFFFF')   
                             ]
                         }
                     ])
