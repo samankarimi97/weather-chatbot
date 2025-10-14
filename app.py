@@ -120,35 +120,59 @@ if user_input and user_input.strip():
             else:
                 forecast = get_forecast(city)
                 
-                if forecast:
+               if forecast:
                     st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                 
-                    # Create a nicer visual representation using a DataFrame
                     import pandas as pd
+                
+                    # Convert forecast data into a DataFrame
                     forecast_df = pd.DataFrame(forecast)
                     forecast_df.rename(columns={
                         "datetime": "Date",
-                        "desc": "Weather Description",
+                        "desc": "Weather Condition",
                         "temp": "Temperature (°C)"
                     }, inplace=True)
                 
-                    # Centered and styled table display
-                    st.dataframe(
-                        forecast_df.style.set_properties(**{
+                    # Apply a clean, professional style
+                    styled_table = forecast_df.style.set_properties(
+                        **{
                             'text-align': 'center',
-                            'background-color': '#f9f9f9',
-                            'border-color': '#cccccc'
-                        }).set_table_styles([{
+                            'font-family': 'Arial',
+                            'font-size': '14px',
+                            'border-color': '#E0E0E0'
+                        }
+                    ).set_table_styles([
+                        {
                             'selector': 'th',
-                            'props': [('background-color', '#0078D4'), ('color', 'black'), ('text-align', 'center')]
-                        }]),
-                        use_container_width=True
-                    )
+                            'props': [
+                                ('background-color', '#2B579A'),   # Deep professional blue header
+                                ('color', 'white'),
+                                ('font-weight', 'bold'),
+                                ('text-align', 'center'),
+                                ('font-size', '15px')
+                            ]
+                        },
+                        {
+                            'selector': 'td',
+                            'props': [
+                                ('background-color', '#F7F9FC')   # Light gray-blue cell background
+                            ]
+                        },
+                        {
+                            'selector': 'tr:nth-child(even)',
+                            'props': [
+                                ('background-color', '#FFFFFF')   # Alternate row color
+                            ]
+                        }
+                    ])
                 
-                    st.caption("Data updated every 3 hours • Average daily values shown")
+                    # Display in Streamlit
+                    st.dataframe(styled_table, use_container_width=True)
+                
+                    st.caption("Data provided by OpenWeatherMap • Updated every 3 hours")
 
-                else:
-                    st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
+              else:
+                st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
     else:
         st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
 elif user_input.strip() == "":
