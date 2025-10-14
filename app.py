@@ -118,60 +118,62 @@ if user_input and user_input.strip():
                 
                 if forecast:
                         st.success(f"📅 5-Day Forecast for {city.capitalize()}")
-
-                        import pandas as pd
-                    
-                        # Convert forecast data into a DataFrame
-                        forecast_df = pd.DataFrame(forecast)
-                        forecast_df.rename(columns={
-                            "datetime": "Date",
-                            "desc": "Weather Condition",
-                            "temp": "Temperature (°C)"
-                        }, inplace=True)
-                    
-                        # Reset index and remove it from display
-                        forecast_df.reset_index(drop=True, inplace=True)
-                    
-                        # Center all content and apply a professional color palette
-                        styled_table = forecast_df.style.hide(axis="index").set_properties(
-                            **{
-                                'text-align': 'center',
-                                'font-family': 'Arial',
-                                'font-size': '14px',
-                                'border-color': '#E0E0E0'
+                 
+                        table_html = """
+                        <style>
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 10px;
                             }
-                        ).set_table_styles([
-                            {
-                                'selector': 'th',
-                                'props': [
-                                    ('background-color', '#2B579A'),   # deep professional blue
-                                    ('color', 'white'),
-                                    ('font-weight', 'bold'),
-                                    ('text-align', 'center'),
-                                    ('font-size', '15px'),
-                                    ('padding', '8px')
-                                ]
-                            },
-                            {
-                                'selector': 'td',
-                                'props': [
-                                    ('background-color', '#F7F9FC'),   # light gray-blue
-                                    ('text-align', 'center'),
-                                    ('padding', '8px')
-                                ]
-                            },
-                            {
-                                'selector': 'tr:nth-child(even)',
-                                'props': [
-                                    ('background-color', '#FFFFFF')   # alternate row color
-                                ]
+                            th {
+                                background-color: #2B579A;
+                                color: white;
+                                font-weight: bold;
+                                text-align: center;
+                                padding: 8px;
+                                font-size: 15px;
                             }
-                        ])
+                            td {
+                                background-color: #F7F9FC;
+                                text-align: center;
+                                padding: 8px;
+                                font-size: 14px;
+                            }
+                            tr:nth-child(even) td {
+                                background-color: #FFFFFF;
+                            }
+                            caption {
+                                caption-side: bottom;
+                                font-size: 12px;
+                                text-align: center;
+                                color: #555;
+                                padding-top: 6px;
+                            }
+                        </style>
+                        <table>
+                            <tr>
+                                <th>Date</th>
+                                <th>Weather Condition</th>
+                                <th>Temperature (°C)</th>
+                            </tr>
+                        """
                     
-                        # Display styled DataFrame without index
-                        st.dataframe(styled_table, use_container_width=True)
+                        for entry in forecast:
+                            table_html += f"""
+                            <tr>
+                                <td>{entry['datetime']}</td>
+                                <td>{entry['desc'].capitalize()}</td>
+                                <td>{entry['temp']}°C</td>
+                            </tr>
+                            """
                     
-                        st.caption("Data provided by OpenWeatherMap • Updated every 3 hours")
+                        table_html += """
+                        </table>
+                        <caption>Data provided by OpenWeatherMap • Updated every 3 hours</caption>
+                        """
+                    
+                        st.markdown(table_html, unsafe_allow_html=True)
 
                 else:
                  st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
