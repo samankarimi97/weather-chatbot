@@ -117,9 +117,9 @@ if user_input and user_input.strip():
                 forecast = get_forecast(city)
                 
                 if forecast:
-                        st.success(f"📅 5-Day Forecast for {city.capitalize()}")
+                            st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                  
-                        import pandas as pd
+                            import pandas as pd
 
                             forecast_df = pd.DataFrame(forecast)
                             forecast_df.rename(columns={
