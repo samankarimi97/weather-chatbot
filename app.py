@@ -117,55 +117,61 @@ if user_input and user_input.strip():
                 forecast = get_forecast(city)
                 
                 if forecast:
-                    st.success(f"📅 5-Day Forecast for {city.capitalize()}")
-                
-                    import pandas as pd
-                
-                    # Convert forecast data into a DataFrame
-                    forecast_df = pd.DataFrame(forecast)
-                    forecast_df.rename(columns={
-                        "datetime": "Date",
-                        "desc": "Weather Condition",
-                        "temp": "Temperature (°C)"
-                    }, inplace=True)
-                
-                    # Apply style
-                    styled_table = forecast_df.style.set_properties(
-                        **{
-                            'text-align': 'center',
-                            'font-family': 'Arial',
-                            'font-size': '14px',
-                            'border-color': '#E0E0E0'
-                        }
-                    ).set_table_styles([
-                        {
-                            'selector': 'th',
-                            'props': [
-                                ('background-color', '#2B579A'),  
-                                ('color', 'white'),
-                                ('font-weight', 'bold'),
-                                ('text-align', 'center'),
-                                ('font-size', '15px')
-                            ]
-                        },
-                        {
-                            'selector': 'td',
-                            'props': [
-                                ('background-color', '#F7F9FC')   
-                            ]
-                        },
-                        {
-                            'selector': 'tr:nth-child(even)',
-                            'props': [
-                                ('background-color', '#FFFFFF')   
-                            ]
-                        }
-                    ])
-                
-                    # Display in Streamlit
-                    st.dataframe(styled_table, use_container_width=True)
-                
-                    st.caption("Data provided by OpenWeatherMap • Updated every 3 hours")
+                        st.success(f"📅 5-Day Forecast for {city.capitalize()}")
+
+                        import pandas as pd
+                    
+                        # Convert forecast data into a DataFrame
+                        forecast_df = pd.DataFrame(forecast)
+                        forecast_df.rename(columns={
+                            "datetime": "Date",
+                            "desc": "Weather Condition",
+                            "temp": "Temperature (°C)"
+                        }, inplace=True)
+                    
+                        # Reset index and remove it from display
+                        forecast_df.reset_index(drop=True, inplace=True)
+                    
+                        # Center all content and apply a professional color palette
+                        styled_table = forecast_df.style.hide(axis="index").set_properties(
+                            **{
+                                'text-align': 'center',
+                                'font-family': 'Arial',
+                                'font-size': '14px',
+                                'border-color': '#E0E0E0'
+                            }
+                        ).set_table_styles([
+                            {
+                                'selector': 'th',
+                                'props': [
+                                    ('background-color', '#2B579A'),   # deep professional blue
+                                    ('color', 'white'),
+                                    ('font-weight', 'bold'),
+                                    ('text-align', 'center'),
+                                    ('font-size', '15px'),
+                                    ('padding', '8px')
+                                ]
+                            },
+                            {
+                                'selector': 'td',
+                                'props': [
+                                    ('background-color', '#F7F9FC'),   # light gray-blue
+                                    ('text-align', 'center'),
+                                    ('padding', '8px')
+                                ]
+                            },
+                            {
+                                'selector': 'tr:nth-child(even)',
+                                'props': [
+                                    ('background-color', '#FFFFFF')   # alternate row color
+                                ]
+                            }
+                        ])
+                    
+                        # Display styled DataFrame without index
+                        st.dataframe(styled_table, use_container_width=True)
+                    
+                        st.caption("Data provided by OpenWeatherMap • Updated every 3 hours")
 
                 else:
                  st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
