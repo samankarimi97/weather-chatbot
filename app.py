@@ -119,10 +119,34 @@ if user_input and user_input.strip():
                     st.error(f"❌ Could not fetch weather data for {city}. Please check the city name.")
             else:
                 forecast = get_forecast(city)
-                if forecast:
+                
+               if forecast:
                     st.success(f"📅 5-Day Forecast for {city.capitalize()}")
-                    for day in forecast:
-                        st.write(f"**{day['datetime']}** – {day['desc']}, 🌡️ {day['temp']}°C")
+                
+                    # visual representation using a DataFrame
+                    import pandas as pd
+                    forecast_df = pd.DataFrame(forecast)
+                    forecast_df.rename(columns={
+                        "datetime": "Date",
+                        "desc": "Weather Description",
+                        "temp": "Temperature (°C)"
+                    }, inplace=True)
+                
+                    # table display
+                    st.dataframe(
+                        forecast_df.style.set_properties(**{
+                            'text-align': 'center',
+                            'background-color': '#f9f9f9',
+                            'border-color': '#cccccc'
+                        }).set_table_styles([{
+                            'selector': 'th',
+                            'props': [('background-color', '#0078D4'), ('color', 'white'), ('text-align', 'center')]
+                        }]),
+                        use_container_width=True
+                    )
+                
+                    st.caption("Data updated every 3 hours • Average daily values shown")
+
                 else:
                     st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
     else:
