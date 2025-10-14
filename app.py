@@ -119,7 +119,8 @@ if user_input and user_input.strip():
                 if forecast:
                         st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                  
-                        table_html = """
+                        html_table = """
+                        <div style="overflow-x:auto;">
                         <style>
                             table {
                                 width: 100%;
@@ -131,24 +132,24 @@ if user_input and user_input.strip():
                                 color: white;
                                 font-weight: bold;
                                 text-align: center;
-                                padding: 8px;
-                                font-size: 15px;
+                                padding: 10px;
+                                font-size: 16px;
                             }
                             td {
                                 background-color: #F7F9FC;
                                 text-align: center;
                                 padding: 8px;
-                                font-size: 14px;
+                                font-size: 15px;
                             }
                             tr:nth-child(even) td {
                                 background-color: #FFFFFF;
                             }
                             caption {
                                 caption-side: bottom;
-                                font-size: 12px;
+                                font-size: 13px;
                                 text-align: center;
-                                color: #555;
-                                padding-top: 6px;
+                                color: #666;
+                                padding-top: 8px;
                             }
                         </style>
                         <table>
@@ -159,8 +160,9 @@ if user_input and user_input.strip():
                             </tr>
                         """
                     
+                        # Add the forecast rows
                         for entry in forecast:
-                            table_html += f"""
+                            html_table += f"""
                             <tr>
                                 <td>{entry['datetime']}</td>
                                 <td>{entry['desc'].capitalize()}</td>
@@ -168,12 +170,15 @@ if user_input and user_input.strip():
                             </tr>
                             """
                     
-                        table_html += """
+                        # Close HTML tags
+                        html_table += """
                         </table>
                         <caption>Data provided by OpenWeatherMap • Updated every 3 hours</caption>
+                        </div>
                         """
                     
-                        st.markdown(table_html, unsafe_allow_html=True)
+                        # Render the table
+                        st.markdown(html_table, unsafe_allow_html=True)
 
                 else:
                  st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
