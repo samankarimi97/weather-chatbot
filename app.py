@@ -119,66 +119,34 @@ if user_input and user_input.strip():
                 if forecast:
                         st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                  
-                        html_table = """
-                        <div style="overflow-x:auto;">
-                        <style>
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin-top: 10px;
-                            }
-                            th {
-                                background-color: #2B579A;
-                                color: white;
-                                font-weight: bold;
-                                text-align: center;
-                                padding: 10px;
-                                font-size: 16px;
-                            }
-                            td {
-                                background-color: #F7F9FC;
-                                text-align: center;
-                                padding: 8px;
-                                font-size: 15px;
-                            }
-                            tr:nth-child(even) td {
-                                background-color: #FFFFFF;
-                            }
-                            caption {
-                                caption-side: bottom;
-                                font-size: 13px;
-                                text-align: center;
-                                color: #666;
-                                padding-top: 8px;
-                            }
-                        </style>
-                        <table>
-                            <tr>
-                                <th>Date</th>
-                                <th>Weather Condition</th>
-                                <th>Temperature (°C)</th>
-                            </tr>
-                        """
-                    
-                        # Add the forecast rows
-                        for entry in forecast:
-                            html_table += f"""
-                            <tr>
-                                <td>{entry['datetime']}</td>
-                                <td>{entry['desc'].capitalize()}</td>
-                                <td>{entry['temp']}°C</td>
-                            </tr>
-                            """
-                    
-                        # Close HTML tags
-                        html_table += """
-                        </table>
-                        <caption>Data provided by OpenWeatherMap • Updated every 3 hours</caption>
-                        </div>
-                        """
-                    
-                        # Render the table
-                        st.markdown(html_table, unsafe_allow_html=True)
+                        import pandas as pd
+                        
+                            # Convert forecast to DataFrame (clean dates if needed)
+                            forecast_df = pd.DataFrame(forecast)
+                            forecast_df.rename(columns={
+                                "datetime": "Date",
+                                "desc": "Weather Condition",
+                                "temp": "Temperature (°C)"
+                            }, inplace=True)
+                            forecast_df.reset_index(drop=True, inplace=True)
+                        
+                            # Header row (3 columns)
+                            hcol1, hcol2, hcol3 = st.columns([2, 4, 2])
+                            hcol1.markdown("**Date**", unsafe_allow_html=True)
+                            hcol2.markdown("**Weather Condition**", unsafe_allow_html=True)
+                            hcol3.markdown("**Temperature (°C)**", unsafe_allow_html=True)
+                        
+                            # Divider for visual separation
+                            st.markdown("---")
+                        
+                            # Rows: build one row per forecast entry using columns (centered)
+                            for _, row in forecast_df.iterrows():
+                                c1, c2, c3 = st.columns([2, 4, 2])
+                                c1.markdown(f"<div style='text-align:center'>{row['Date']}</div>", unsafe_allow_html=True)
+                                c2.markdown(f"<div style='text-align:center'>{row['Weather Condition'].capitalize()}</div>", unsafe_allow_html=True)
+                                c3.markdown(f"<div style='text-align:center'>{row['Temperature (°C)']}°C</div>", unsafe_allow_html=True)
+                        
+                            st.caption("Data provided by OpenWeatherMap • Forecast intervals every 3 hours (daily snapshot shown)")
 
                 else:
                  st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
