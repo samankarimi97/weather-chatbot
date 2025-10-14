@@ -120,10 +120,10 @@ if user_input and user_input.strip():
             else:
                 forecast = get_forecast(city)
                 
-            if forecast:
+                if forecast:
                     st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                 
-                    # visual representation using a DataFrame
+                    # Create a nicer visual representation using a DataFrame
                     import pandas as pd
                     forecast_df = pd.DataFrame(forecast)
                     forecast_df.rename(columns={
@@ -132,7 +132,7 @@ if user_input and user_input.strip():
                         "temp": "Temperature (°C)"
                     }, inplace=True)
                 
-                    # table display
+                    # Centered and styled table display
                     st.dataframe(
                         forecast_df.style.set_properties(**{
                             'text-align': 'center',
@@ -147,7 +147,7 @@ if user_input and user_input.strip():
                 
                     st.caption("Data updated every 3 hours • Average daily values shown")
 
-            else:
+                else:
                     st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
     else:
         st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
