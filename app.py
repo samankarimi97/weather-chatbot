@@ -171,7 +171,7 @@ if user_input and user_input.strip():
                 
                     st.caption("Data provided by OpenWeatherMap • Updated every 3 hours")
 
-              else:
+          else:
                 st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
     else:
         st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
