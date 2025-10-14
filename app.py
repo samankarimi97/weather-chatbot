@@ -9,7 +9,8 @@ nlp = spacy.load("en_core_web_md")
 
 # OpenWeatherMap API setup
 API_KEY =st.secrets['openweather_key'] 
-BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
+CURRENT_WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
+FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
 # Function to extract city name using spaCy
 def extract_city(user_input):
@@ -52,7 +53,24 @@ def get_weather(city):
     else:
         # If the request was not successful, return None
         return None
-
+# Get 5-day forecast
+def get_forecast(city):
+    params = {"q": city, "appid": API_KEY, "units": "metric"}
+    response = requests.get(FORECAST_URL, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        forecasts = []
+        # Pick one forecast per day (every 24h = 8 * 3h)
+        for i in range(0, len(data["list"]), 8):
+            item = data["list"][i]
+            forecasts.append({
+                "datetime": item["dt_txt"].split(" ")[0],
+                "temp": item["main"]["temp"],
+                "desc": item["weather"][0]["description"].capitalize()
+            })
+        return forecasts
+    else:
+        return None
 # Streamlit User Interface (UI) setup
 st.set_page_config(page_title="WeatherBot", page_icon="⛅", layout="centered")
 
