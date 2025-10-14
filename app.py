@@ -120,8 +120,7 @@ if user_input and user_input.strip():
                         st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                  
                         import pandas as pd
-                        
-                            # Convert forecast to DataFrame (clean dates if needed)
+
                             forecast_df = pd.DataFrame(forecast)
                             forecast_df.rename(columns={
                                 "datetime": "Date",
