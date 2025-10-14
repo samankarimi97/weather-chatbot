@@ -34,7 +34,7 @@ def get_weather(city):
     params = {"q": city, "appid": API_KEY, "units": "metric"} # units=metric for Celsius
 
     # Make the GET request to the API
-    response = requests.get(BASE_URL, params=params)
+    response = requests.get(CURRENT_WEATHER_URL, params=params)
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
