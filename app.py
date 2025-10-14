@@ -120,7 +120,7 @@ if user_input and user_input.strip():
             else:
                 forecast = get_forecast(city)
                 
-               if forecast:
+            if forecast:
                     st.success(f"📅 5-Day Forecast for {city.capitalize()}")
                 
                     # visual representation using a DataFrame
