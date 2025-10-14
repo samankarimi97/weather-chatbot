@@ -118,34 +118,8 @@ if user_input and user_input.strip():
                 
                 if forecast:
                             st.success(f"📅 5-Day Forecast for {city.capitalize()}")
-                 
-                            import pandas as pd
-
-                            forecast_df = pd.DataFrame(forecast)
-                            forecast_df.rename(columns={
-                                "datetime": "Date",
-                                "desc": "Weather Condition",
-                                "temp": "Temperature (°C)"
-                            }, inplace=True)
-                            forecast_df.reset_index(drop=True, inplace=True)
-                        
-                            # Header row (3 columns)
-                            hcol1, hcol2, hcol3 = st.columns([2, 4, 2])
-                            hcol1.markdown("**Date**", unsafe_allow_html=True)
-                            hcol2.markdown("**Weather Condition**", unsafe_allow_html=True)
-                            hcol3.markdown("**Temperature (°C)**", unsafe_allow_html=True)
-                        
-                            # Divider for visual separation
-                            st.markdown("---")
-                        
-                            # Rows: build one row per forecast entry using columns (centered)
-                            for _, row in forecast_df.iterrows():
-                                c1, c2, c3 = st.columns([2, 4, 2])
-                                c1.markdown(f"<div style='text-align:center'>{row['Date']}</div>", unsafe_allow_html=True)
-                                c2.markdown(f"<div style='text-align:center'>{row['Weather Condition'].capitalize()}</div>", unsafe_allow_html=True)
-                                c3.markdown(f"<div style='text-align:center'>{row['Temperature (°C)']}°C</div>", unsafe_allow_html=True)
-                        
-                            st.caption("Data provided by OpenWeatherMap • Forecast intervals every 3 hours (daily snapshot shown)")
+                            for day in forecast:
+                                st.write(f"**{day['datetime']}** – {day['desc']}, 🌡️ {day['temp']}°C")
 
                 else:
                  st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
