@@ -140,7 +140,7 @@ if user_input and user_input.strip():
                             'border-color': '#cccccc'
                         }).set_table_styles([{
                             'selector': 'th',
-                            'props': [('background-color', '#0078D4'), ('color', 'white'), ('text-align', 'center')]
+                            'props': [('background-color', '#0078D4'), ('color', 'black'), ('text-align', 'center')]
                         }]),
                         use_container_width=True
                     )
