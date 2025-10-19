@@ -126,7 +126,7 @@ if user_input and user_input.strip():
     else:
         st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
 elif user_input.strip() == "":
-    st.info("💬 Please enter a city name or question to begin.")
+    st.info("")
 
 
 st.markdown("")
