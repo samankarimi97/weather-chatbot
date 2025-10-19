@@ -35,7 +35,7 @@ The application is deployed and accessible via **Streamlit Cloud**:
 
 The chatbot follows a concise, linear workflow to process requests:
 
-1. **Input:** User enters a natural language query (e.g., "What is the weather like in Tokyo tomorrow?").
+1. **Input:** User enters a natural language query (e.g., "What is the weather like in Berlin tomorrow?").
 
 2. **NLP Parsing:** The spaCy model processes the text to identify and extract the geographical entity (city name).
 
@@ -56,4 +56,5 @@ This project is intended for academic and educational use as part of the AI Use 
 * **spaCy:** For its efficient and robust NLP library.
 
 * **OpenWeatherMap:** For supplying comprehensive and reliable weather data.
+
 
