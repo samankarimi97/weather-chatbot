@@ -49,8 +49,6 @@ The chatbot follows a concise, linear workflow to process requests:
 
 This project is intended for academic and educational use as part of the AI Use Case course at IU International University of Applied Sciences.
 
-© 2025 Saman Karimi. All rights reserved.
-
 ##  Acknowledgments
 
 * **Streamlit:** For providing a powerful and fast way to build interactive web applications in Python.
@@ -58,3 +56,4 @@ This project is intended for academic and educational use as part of the AI Use 
 * **spaCy:** For its efficient and robust NLP library.
 
 * **OpenWeatherMap:** For supplying comprehensive and reliable weather data.
+
