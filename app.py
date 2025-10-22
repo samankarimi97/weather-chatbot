@@ -4,8 +4,16 @@ from typing import Optional
 import requests
 import spacy
 import streamlit as st
+from spacy.language import Language
 
-nlp = spacy.load("en_core_web_md")
+
+@st.cache_resource(show_spinner=False)
+def load_nlp_model() -> Language:
+    """Load and cache the spaCy model for entity extraction."""
+    return spacy.load("en_core_web_md")
+
+
+nlp = load_nlp_model()
 
 # OpenWeatherMap API setup
 API_KEY = st.secrets["openweather_key"]
@@ -24,9 +32,10 @@ def extract_city(user_input: str) -> Optional[str]:
 
 
 # Function to get weather data from OpenWeatherMap API
+@st.cache_data(ttl=600, show_spinner=False)
 def get_weather(city: str) -> Optional[dict]:
     params = {"q": city, "appid": API_KEY, "units": "metric"}
-    response = requests.get(CURRENT_WEATHER_URL, params=params)
+    response = requests.get(CURRENT_WEATHER_URL, params=params, timeout=10)
 
     if response.status_code == 200:
         # Parse the JSON response
@@ -45,9 +54,10 @@ def get_weather(city: str) -> Optional[dict]:
 
 
 # Get 5-day forecast
+@st.cache_data(ttl=600, show_spinner=False)
 def get_forecast(city: str) -> Optional[list]:
     params = {"q": city, "appid": API_KEY, "units": "metric"}
-    response = requests.get(FORECAST_URL, params=params)
+    response = requests.get(FORECAST_URL, params=params, timeout=10)
     if response.status_code == 200:
         data = response.json()
         forecasts = []
