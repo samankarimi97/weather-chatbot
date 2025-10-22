@@ -123,7 +123,7 @@ st.markdown(
 # Add sidebar content with richer context
 st.sidebar.image(
     "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=400&q=80",
-    use_column_width=True,
+    use_container_width=True,
     caption="Keeping an eye on the skies",
 )
 st.sidebar.title("About WeatherBot")
