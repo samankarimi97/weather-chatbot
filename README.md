@@ -22,6 +22,20 @@ The application is deployed and accessible via **Streamlit Cloud**:
 
 * **Responsive UI:** Designed with a user-friendly, clean interface using **Streamlit**.
 
+## Checking the latest UI refresh locally
+
+Recent updates introduced a softened gradient background, richer sidebar content, and card-style highlights for current metrics and the five-day outlook. To confirm you are seeing the newest interface locally:
+
+1. Install dependencies (preferably inside a virtual environment):
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Launch the application:
+   ```bash
+   streamlit run app.py
+   ```
+3. The page title should read **"⛅ Weather Forecast Chatbot"** and the sidebar will display a photo with tips beneath the "About WeatherBot" section. If your browser shows an older layout, force refresh (Ctrl/Cmd+Shift+R) to clear cached assets.
+
 ##  Tech Stack
 
 | **Component** | **Technology** | **Role** | 
