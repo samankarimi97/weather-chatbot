@@ -1,74 +1,105 @@
-# ☁️ Weather Forecast Chatbot
+# AI Weather Assistant
 
-**Author:** Saman Karimi | **Program:** Master of Science in Artificial Intelligence (AI) | **Institution:** IU International University of Applied Sciences
+An academic Python application that turns natural-language weather questions into current conditions or a five-day forecast.
 
-##  Project Overview
+The project uses spaCy named-entity recognition to identify a city in the user's question, requests weather data from OpenWeatherMap, and presents the result in a Streamlit interface.
 
-The **Weather Forecast Chatbot** is a data-driven web application that provides real-time, location-specific weather information through a natural language interface.
+## What It Demonstrates
 
-Developed using **Python** and **Streamlit**, the application leverages **Natural Language Processing (NLP)** via **spaCy** to parse conversational user queries, accurately extract city names, and retrieve current and multi-day forecasts using the **OpenWeatherMap API**. This project demonstrates the integration of NLP and external APIs to create a highly accessible, conversational AI tool for everyday decision-making.
+- Natural-language location extraction with spaCy and `en_core_web_md`
+- Integration with the OpenWeatherMap API
+- Current-weather and five-day forecast views
+- A small interactive web interface built with Streamlit
+- Cached NLP model loading and weather responses
 
-##  Live Demo
+This project was developed for the AI Use Case course in the M.Sc. Artificial Intelligence program at IU International University of Applied Sciences.
 
-The application is deployed and accessible via **Streamlit Cloud**:
+## Technologies
 
-👉 [**Launch Weather Forecast Chatbot**](https://saman-karimi-chatbot-ai-use-case-iu.streamlit.app)
+- Python 3.11
+- Streamlit
+- spaCy
+- Requests
+- OpenWeatherMap API
 
-## Key Features
+## Run Locally
 
-* **Real-time Grounding:** Fetches current weather and multi-day forecasts for any city worldwide using the **OpenWeatherMap API**.
+### 1. Clone the repository
 
-* **Intelligent NLP:** Utilizes **spaCy** with the `en_core_web_md` model for robust named-entity recognition and accurate city name extraction from unstructured text.
+```bash
+git clone https://github.com/samankarimi97/weather-chatbot.git
+cd weather-chatbot
+```
 
-* **Responsive UI:** Designed with a user-friendly, clean interface using **Streamlit**.
+### 2. Create and activate a virtual environment
 
-## Checking the latest UI refresh locally
+```bash
+python -m venv .venv
+```
 
-Recent updates introduced a softened gradient background, richer sidebar content, and card-style highlights for current metrics and the five-day outlook. To confirm you are seeing the newest interface locally:
+On Windows:
 
-1. Install dependencies (preferably inside a virtual environment):
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Launch the application:
-   ```bash
-   streamlit run app.py
-   ```
-3. The page title should read **"⛅ Weather Forecast Chatbot"** and the sidebar will display a photo with tips beneath the "About WeatherBot" section. If your browser shows an older layout, force refresh (Ctrl/Cmd+Shift+R) to clear cached assets.
+```powershell
+.venv\Scripts\Activate.ps1
+```
 
-##  Tech Stack
+On macOS or Linux:
 
-| **Component** | **Technology** | **Role** | 
-| :--- | :--- | :--- | 
-| **Frontend/UI** | Streamlit | Interactive web application framework | 
-| **Backend/Logic** | Python | Core application scripting and logic | 
-| **NLP Engine** | spaCy (`en_core_web_md`) | Natural Language Processing and entity extraction | 
-| **Data Source** | OpenWeatherMap API | Real-time weather data retrieval | 
+```bash
+source .venv/bin/activate
+```
 
-##  System Architecture
+### 3. Install dependencies
 
-The chatbot follows a concise, linear workflow to process requests:
+```bash
+python -m pip install -r requirements.txt
+```
 
-1. **Input:** User enters a natural language query (e.g., "What is the weather like in Berlin tomorrow?").
+### 4. Configure the API key
 
-2. **NLP Parsing:** The spaCy model processes the text to identify and extract the geographical entity (city name).
+Create `.streamlit/secrets.toml` and add an active OpenWeatherMap API key:
 
-3. **API Request:** The extracted city name is passed to the OpenWeatherMap API to fetch the required weather data.
+```toml
+openweather_key = "your_api_key"
+```
 
-4. **Data Transformation:** Python process the raw JSON response into a structured, user-friendly format.
+Do not commit this file or share the key publicly.
 
-5. **Output:** Streamlit renders the interactive results, displaying the forecast to the user.
+### 5. Start the application
 
-##  License
+```bash
+streamlit run app.py
+```
 
-This project is intended for academic and educational use as part of the AI Use Case course at IU International University of Applied Sciences.
+Open the local URL shown by Streamlit, enter a question containing a city name, and choose current weather or the five-day forecast.
 
-##  Acknowledgments
+Example questions:
 
-* **Streamlit:** For providing a powerful and fast way to build interactive web applications in Python.
+- `What is the weather in Berlin?`
+- `Show me the five-day forecast for Hamburg.`
 
-* **spaCy:** For its efficient and robust NLP library.
+## Project Structure
 
-* **OpenWeatherMap:** For supplying comprehensive and reliable weather data.
+```text
+weather-chatbot/
+|-- app.py              # NLP, API integration, and Streamlit interface
+|-- requirements.txt    # Python dependencies and spaCy language model
+|-- runtime.txt         # Python version used by the hosted application
+`-- .devcontainer/      # Optional development-container configuration
+```
 
+## Limitations
 
+- City detection depends on spaCy recognizing a geographical entity; short or ambiguous input may not be detected.
+- Weather data and availability depend on the OpenWeatherMap API and a valid API key.
+- The five-day view samples the API's three-hour forecast data once per day; it is not a daily aggregation.
+- The application does not train or evaluate a custom machine-learning model.
+- Automated tests are not currently included.
+
+## Live Application
+
+The project has a [Streamlit Community Cloud deployment](https://saman-karimi-chatbot-ai-use-case-iu.streamlit.app/). Community Cloud may put inactive applications to sleep, so the page can require a manual wake-up before use.
+
+## Status
+
+Academic project maintained as a portfolio demonstration of applied NLP, API integration, and Python application development.
