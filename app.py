@@ -201,4 +201,4 @@ if user_input and user_input.strip():
         st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
 
 st.markdown("---")
-st.caption("Built by Saman Karimi for AI Use Case Project - IU International University of Applied Sciences")
+st.caption("Built by Saman Karimi")
