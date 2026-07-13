@@ -15,190 +15,317 @@ def load_nlp_model() -> Language:
 
 nlp = load_nlp_model()
 
-# OpenWeatherMap API setup
 API_KEY = st.secrets["openweather_key"]
-CURRENT_WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
-FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast"
+CURRENT_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
+FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 
-# Function to extract city name using spaCy
 def extract_city(user_input: str) -> Optional[str]:
-    doc = nlp(user_input)
+    cleaned = user_input.strip()
+    doc = nlp(cleaned)
     for ent in doc.ents:
         if ent.label_ == "GPE":
             return ent.text
-    # If no GPE is found, return None
+
+    # Also accept a direct city name such as "Berlin".
+    if cleaned and len(cleaned.split()) <= 3:
+        return cleaned
     return None
 
 
-# Function to get weather data from OpenWeatherMap API
 @st.cache_data(ttl=600, show_spinner=False)
 def get_weather(city: str) -> Optional[dict]:
-    params = {"q": city, "appid": API_KEY, "units": "metric"}
-    response = requests.get(CURRENT_WEATHER_URL, params=params, timeout=10)
-
-    if response.status_code == 200:
-        # Parse the JSON response
+    try:
+        response = requests.get(
+            CURRENT_WEATHER_URL,
+            params={"q": city, "appid": API_KEY, "units": "metric"},
+            timeout=10,
+        )
+        response.raise_for_status()
         data = response.json()
-        # Extract the relevant weather information
-        weather = {
+        return {
             "city": data["name"],
+            "country": data.get("sys", {}).get("country", ""),
             "temperature": data["main"]["temp"],
+            "feels_like": data["main"]["feels_like"],
             "humidity": data["main"]["humidity"],
             "pressure": data["main"]["pressure"],
             "wind_speed": data["wind"]["speed"],
             "description": data["weather"][0]["description"],
+            "icon": data["weather"][0]["icon"],
         }
-        return weather
-    return None
+    except (requests.RequestException, KeyError, ValueError):
+        return None
 
 
-# Get 5-day forecast
 @st.cache_data(ttl=600, show_spinner=False)
 def get_forecast(city: str) -> Optional[list]:
-    params = {"q": city, "appid": API_KEY, "units": "metric"}
-    response = requests.get(FORECAST_URL, params=params, timeout=10)
-    if response.status_code == 200:
+    try:
+        response = requests.get(
+            FORECAST_URL,
+            params={"q": city, "appid": API_KEY, "units": "metric"},
+            timeout=10,
+        )
+        response.raise_for_status()
         data = response.json()
         forecasts = []
-        # Pick one forecast per day (every 24h = 8 * 3h)
-        for i in range(0, len(data["list"]), 8):
-            item = data["list"][i]
-            forecasts.append(
-                {
-                    "datetime": item["dt_txt"].split(" ")[0],
-                    "temp": item["main"]["temp"],
-                    "desc": item["weather"][0]["description"].capitalize(),
-                }
-            )
-        return forecasts
-    return None
+        seen_dates = set()
+        for item in data["list"]:
+            date = item["dt_txt"].split(" ")[0]
+            hour = item["dt_txt"].split(" ")[1]
+            if date not in seen_dates and hour in {"12:00:00", "15:00:00"}:
+                seen_dates.add(date)
+                forecasts.append(
+                    {
+                        "date": date,
+                        "temp": item["main"]["temp"],
+                        "feels_like": item["main"]["feels_like"],
+                        "humidity": item["main"]["humidity"],
+                        "description": item["weather"][0]["description"].capitalize(),
+                        "icon": item["weather"][0]["icon"],
+                    }
+                )
+            if len(forecasts) == 5:
+                break
+        return forecasts or None
+    except (requests.RequestException, KeyError, ValueError):
+        return None
 
 
-# Streamlit User Interface (UI) setup
-st.set_page_config(page_title="WeatherBot", page_icon="⛅", layout="centered")
+st.set_page_config(
+    page_title="WeatherBot",
+    page_icon="⛅",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
-# Inject custom styling to modernize the interface
 st.markdown(
     """
     <style>
-    body {
-        background: radial-gradient(circle at top, #e0f7ff 0%, #f5f7fb 60%, #ffffff 100%);
+    :root {
+        --bg: #07111f;
+        --surface: rgba(17, 32, 53, 0.76);
+        --surface-strong: rgba(20, 39, 64, 0.96);
+        --border: rgba(148, 163, 184, 0.18);
+        --text: #f8fafc;
+        --muted: #9fb0c7;
+        --accent: #38bdf8;
+        --accent-2: #818cf8;
     }
+
+    .stApp {
+        background:
+            radial-gradient(circle at 15% 5%, rgba(56, 189, 248, 0.18), transparent 30%),
+            radial-gradient(circle at 90% 10%, rgba(129, 140, 248, 0.15), transparent 28%),
+            linear-gradient(180deg, #07111f 0%, #0b1423 55%, #07101c 100%);
+        color: var(--text);
+    }
+
+    [data-testid="stHeader"] { background: transparent; }
+    [data-testid="stToolbar"] { right: 1rem; }
+
     .main .block-container {
-        padding-top: 2.5rem;
+        max-width: 1120px;
+        padding-top: 2.2rem;
         padding-bottom: 3rem;
-        max-width: 860px;
     }
-    .weather-card {
-        background: rgba(255, 255, 255, 0.78);
-        border-radius: 18px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(135, 206, 250, 0.35);
-        box-shadow: 0 18px 35px rgba(135, 206, 250, 0.18);
+
+    .hero {
+        padding: 2rem 2.2rem;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(17, 32, 53, 0.92), rgba(15, 23, 42, 0.74));
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+        margin-bottom: 1.6rem;
     }
+
+    .eyebrow {
+        color: #7dd3fc;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 0.7rem;
+    }
+
+    .hero h1 {
+        color: #f8fafc;
+        font-size: clamp(2.2rem, 6vw, 4.5rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 0.85rem 0;
+    }
+
+    .hero p {
+        color: var(--muted);
+        font-size: 1.05rem;
+        max-width: 720px;
+        margin: 0;
+    }
+
+    .section-label {
+        color: #cbd5e1;
+        font-weight: 700;
+        margin: 1.1rem 0 0.45rem;
+    }
+
+    .weather-summary {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.35rem 1.5rem;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        background: linear-gradient(135deg, rgba(14, 116, 144, 0.2), rgba(30, 41, 59, 0.82));
+        margin: 1.2rem 0;
+    }
+
+    .weather-summary img { width: 78px; height: 78px; }
+    .weather-summary h2 { margin: 0; color: #f8fafc; font-size: 1.55rem; }
+    .weather-summary p { margin: 0.25rem 0 0; color: #a9bad0; }
+
+    div[data-testid="stMetric"] {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 1.25rem 1.35rem;
+        border-radius: 20px;
+        min-height: 132px;
+        box-shadow: 0 16px 36px rgba(0,0,0,.16);
+    }
+
+    div[data-testid="stMetric"] label,
+    div[data-testid="stMetric"] [data-testid="stMetricLabel"] {
+        color: #aebed2 !important;
+        font-weight: 700;
+    }
+
+    div[data-testid="stMetricValue"] {
+        color: #ffffff;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
     .forecast-card {
-        border-radius: 14px;
-        padding: 1.1rem 1.2rem;
-        background: linear-gradient(135deg, rgba(135, 206, 250, 0.22), rgba(255, 255, 255, 0.85));
-        border: 1px solid rgba(135, 206, 250, 0.35);
-        margin-bottom: 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.2rem;
+        background: var(--surface);
+        min-height: 210px;
+        box-shadow: 0 14px 32px rgba(0,0,0,.15);
+        text-align: center;
     }
-    .stRadio > label {
-        font-weight: 600;
-        color: #1e3a56 !important;
+
+    .forecast-card img { width: 70px; height: 70px; }
+    .forecast-card .date { color: #e2e8f0; font-weight: 800; }
+    .forecast-card .temp { color: white; font-size: 1.65rem; font-weight: 800; margin: .35rem 0; }
+    .forecast-card .desc { color: #9fb0c7; font-size: .92rem; }
+    .forecast-card .meta { color: #7dd3fc; font-size: .82rem; margin-top: .65rem; }
+
+    .footer {
+        color: #718096;
+        text-align: center;
+        margin-top: 2.5rem;
+        font-size: .88rem;
     }
-    .stMetric {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 1.05rem;
-        border-radius: 14px;
-        border: 1px solid rgba(135, 206, 250, 0.35);
+
+    div[data-baseweb="input"] > div {
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(125, 211, 252, 0.25);
+        border-radius: 16px;
+    }
+
+    div[data-baseweb="input"] input { color: #f8fafc; }
+    div[role="radiogroup"] { gap: .65rem; }
+
+    @media (max-width: 700px) {
+        .main .block-container { padding: 1rem; }
+        .hero { padding: 1.45rem; border-radius: 22px; }
+        .weather-summary { align-items: flex-start; }
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# Add sidebar content with richer context
-st.sidebar.image(
-    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=400&q=80",
-    use_container_width=True,
-    caption="Keeping an eye on the skies",
-)
-st.sidebar.title("About WeatherBot")
-st.sidebar.markdown(
-    "WeatherBot pairs the OpenWeatherMap API with NLP city detection to deliver accurate, friendly forecasts on demand."
-)
-st.sidebar.markdown("**Tip:** Try natural questions such as `Do I need an umbrella in Paris today?`.")
-st.sidebar.markdown("---")
-st.sidebar.caption("Built by Saman Karimi")
-st.sidebar.caption("Data provided by OpenWeatherMap")
-
-st.title("⛅ Weather Forecast Chatbot")
-st.subheader("Ask about the weather anywhere in the world and get instant answers.")
-
-# Suggested prompts to encourage exploration
 st.markdown(
-    "**Popular quick asks:** "
-    "`Weather in Tokyo right now`, `Is it raining in Seattle?`, `5-day outlook for Cape Town`"
+    """
+    <div class="hero">
+        <div class="eyebrow">Live weather intelligence</div>
+        <h1>WeatherBot</h1>
+        <p>Ask naturally, get current conditions and a clean five-day forecast for any city worldwide.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 user_input = st.text_input(
-    "Enter a city name to get the weather forecast:",
-    placeholder="Ask your question about weather, I'm ready to answer",
-    help="Type the full name of the city you want the weather forecast for and press Enter.",
+    "Search a city",
+    placeholder="Try: Weather in Berlin or Tokyo",
+    help="Enter a city name or ask a natural-language weather question.",
+)
+mode = st.radio(
+    "Forecast type",
+    ["Current weather", "5-day forecast"],
+    horizontal=True,
 )
 
-# Forecast mode selector
-mode = st.radio("Select forecast type:", ["Current Weather", "5-Day Forecast"], horizontal=True)
-
-# Process input
 if user_input and user_input.strip():
     city = extract_city(user_input)
-
     if city:
-        with st.spinner(f"Fetching {mode.lower()} for {city}..."):
-            time.sleep(1.5)
-            if mode == "Current Weather":
+        with st.spinner(f"Checking the sky over {city}..."):
+            time.sleep(0.45)
+            if mode == "Current weather":
                 weather = get_weather(city)
                 if weather:
-                    st.success(f"🌍 Current Weather in {city.capitalize()}")
-                    with st.container():
-                        col1, col2 = st.columns(2, gap="large")
-                        with col1:
-                            st.metric("🌡️ Temperature", f"{weather['temperature']}°C")
-                            st.metric("💨 Wind Speed", f"{weather['wind_speed']} m/s")
-                        with col2:
-                            st.metric("💧 Humidity", f"{weather['humidity']}%")
-                            st.metric("🔹 Pressure", f"{weather['pressure']} hPa")
+                    location = weather["city"]
+                    if weather["country"]:
+                        location += f", {weather['country']}"
                     st.markdown(
-                        f"<div class='weather-card'><strong>Description:</strong> {weather['description'].capitalize()}</div>",
+                        f"""
+                        <div class="weather-summary">
+                            <img src="https://openweathermap.org/img/wn/{weather['icon']}@2x.png" alt="Weather icon">
+                            <div>
+                                <h2>{location}</h2>
+                                <p>{weather['description'].capitalize()} · Feels like {weather['feels_like']:.1f}°C</p>
+                            </div>
+                        </div>
+                        """,
                         unsafe_allow_html=True,
                     )
+                    col1, col2, col3, col4 = st.columns(4)
+                    col1.metric("Temperature", f"{weather['temperature']:.1f}°C")
+                    col2.metric("Humidity", f"{weather['humidity']}%")
+                    col3.metric("Wind speed", f"{weather['wind_speed']:.1f} m/s")
+                    col4.metric("Pressure", f"{weather['pressure']} hPa")
                 else:
-                    st.error(
-                        f"❌ Could not fetch weather data for {city}. Please check the city name or try again later."
-                    )
+                    st.error("Weather data could not be loaded. Check the city name and try again.")
             else:
                 forecast = get_forecast(city)
-
                 if forecast:
-                    st.success(f"📅 5-Day Forecast for {city.capitalize()}")
-                    for day in forecast:
-                        st.markdown(
-                            f"""
-                            <div class='forecast-card'>
-                                <strong>{day['datetime']}</strong><br/>
-                                {day['desc']} • 🌡️ {day['temp']}°C
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
+                    st.markdown(f"<div class='section-label'>5-day forecast for {city.title()}</div>", unsafe_allow_html=True)
+                    columns = st.columns(len(forecast))
+                    for column, day in zip(columns, forecast):
+                        with column:
+                            st.markdown(
+                                f"""
+                                <div class="forecast-card">
+                                    <div class="date">{day['date']}</div>
+                                    <img src="https://openweathermap.org/img/wn/{day['icon']}@2x.png" alt="Weather icon">
+                                    <div class="temp">{day['temp']:.1f}°C</div>
+                                    <div class="desc">{day['description']}</div>
+                                    <div class="meta">Feels {day['feels_like']:.1f}° · Humidity {day['humidity']}%</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
                 else:
-                    st.error(f"❌ Unable to retrieve forecast for {city}. Try again later.")
+                    st.error("The forecast could not be loaded. Check the city name and try again.")
     else:
-        st.warning("🔎 I couldn't detect a city name in your input. Please try again.")
+        st.warning("I couldn't detect a city. Try entering the city name directly.")
+else:
+    st.markdown(
+        "<div class='section-label'>Popular searches: Berlin · London · Tokyo · New York · Cape Town</div>",
+        unsafe_allow_html=True,
+    )
 
-st.markdown("---")
-st.caption("Built by Saman Karimi")
+st.markdown("<div class='footer'>Built by Saman Karimi · Weather data by OpenWeatherMap</div>", unsafe_allow_html=True)
